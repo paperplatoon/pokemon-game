@@ -15,7 +15,7 @@ div.health {
 div.hand {
 	display: flex;
 	flex: 7;
-	justify-content: space-between;
+	justify-content: center;
 }
 
 .monsterCard {
@@ -23,11 +23,41 @@ div.hand {
 	width: 150px;
 	height: 200px;
 	line-height: .4em;
+	background-color: #efefef;
+	margin: 0.5%;
+}
+
+div.monsterCardEmpty {
+	padding: 1%;
+	width: 150px;
+	height: 200px;
+	line-height: .4em;
+	background-color: #efefef;
+	margin: 0.5%;
+	text-align: center;
+	vertical-align: center;
 }
 
 
-div {
-	border: 1px solid black;
+div.top-row-monster {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+h3.monsterHealth {
+	font-size: 2.5em;
+	color: red;
+	margin-top: -.1em;
+}
+
+
+
+div.middle-row {
+	display: flex;
+	justify-content: space-around;
+	margin: 2%;
 }
 
 

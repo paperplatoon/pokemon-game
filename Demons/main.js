@@ -1,6 +1,15 @@
 
 /* global $ */
 
+$(window).load(function () {
+  renderHealth()
+  renderMonsters()
+  displayPlayerHand()
+  displayEnemyHand()
+  const playerMonsters = isMonstersEmpty(playerM)
+  const enemyMonsters = isMonstersEmpty(enemy)
+})
+
 // MONSTERS
 
 let monster1 = {
@@ -57,8 +66,8 @@ let enemy = {
   HP: 15,
   deck: [monster3, monster4],
   trash: [],
-  hand: [],
-  monsterInPlay: monster3
+  hand: [monster1, monster1],
+  monsterInPlay: []
 }
 
 // here are some example cards. They have an id, a name, effect Text, and an effect function.
@@ -142,6 +151,15 @@ const playerDraw = function (player) {
   }
 }
 
+// Takes a player as input, returns true if their monsterZone is empty and false if it is full
+const isMonstersEmpty = function (player) {
+  if (player.monsterInPlay.name) {
+    return true
+  } else {
+    return false
+  }
+}
+
 // takes a card and executes that card's effect, then locates the card's index in the player's hand
 // and removes the card from the player's hand, then pushes it to the trash array.
 const playCard = function (myCardIndex) {
@@ -149,17 +167,8 @@ const playCard = function (myCardIndex) {
   discardedCard.cardEffect()
   playerTrash.push(discardedCard)
   displayPlayerHand()
-  renderHealths()
-}
-
-// Looks into the AIHealth div and renders the enemy's health
-const renderEnemyHealth = function () {
-
-}
-
-// Looks into the AIHealth div and renders the enemy's health
-const renderPlayerHealth = function () {
-
+  displayEnemyHand()
+  renderHealth()
 }
 
 const renderHealth = function () {
@@ -173,10 +182,11 @@ const renderHealth = function () {
 }
 
 const renderMonster = function (monster) {
-  const monsterMaster = monster.master.join(' ')
-  const monsterApprentice = monster.apprentice.join(' ')
-  const monsterWeak = monster.weak.join(' ')
-  return `
+  if (monster.name) {
+    const monsterMaster = monster.master.join(' ')
+    const monsterApprentice = monster.apprentice.join(' ')
+    const monsterWeak = monster.weak.join(' ')
+    return `
     <div class="monsterCard">
       <div class="top-row-monster">
         <h3 class="monsterName">${monster.name}</h3> 
@@ -187,18 +197,37 @@ const renderMonster = function (monster) {
       <p class="monsterWeak">Weak: ${monsterWeak}</p>
     </div>
   `
+  } else {
+    return false
+  }
 }
 
 const renderMonsters = function () {
   const playerMonsterHTML = renderMonster(playerM.monsterInPlay)
-  $('div.playerMonsters').html(`${playerMonsterHTML}
-  `
-  )
+  if (playerMonsterHTML) {
+    $('div.playerMonsters').html(`${playerMonsterHTML}
+    `
+    )
+  } else {
+    $('div.playerMonsters').html(`
+      <div class="monsterCardEmpty">
+        <p>No monster in play</p>
+      </div>
+      `)
+  }
 
   const enemyMonsterHTML = renderMonster(enemy.monsterInPlay)
-  $('div.enemyMonsters').html(`${enemyMonsterHTML}
-  `
-  )
+  if (enemyMonsterHTML) {
+    $('div.enemyMonsters').html(`${enemyMonsterHTML}
+    `
+    )
+  } else {
+    $('div.enemyMonsters').html(`
+      <div class="monsterCardEmpty">
+        <p>No monster in play</p>
+      </div>
+      `)
+  }
 }
 
 // creates a scientist array and fills it with scientists (or empty spaces)
@@ -218,14 +247,20 @@ const displayPlayerHand = function () {
   handZone.html(handHtml)
 }
 
-// This draws 3 cards from the player deck to start the game and displays their data in the UI
-// Also draws two scientists to begin with
-$(window).load(function () {
-  console.log('stuff loaded!')
-  renderHealth()
-  renderMonsters()
-  displayPlayerHand()
-})
+const displayEnemyHand = function () {
+  console.log('ehllo')
+  const enemyHand = enemy.hand
+
+  const handZone = $('div.enemyHand')
+  handZone.empty()
+
+  const handHtml = enemyHand
+    .map(renderMonster)
+    .join('')
+
+  console.log(handHtml + 'hello')
+  handZone.html(handHtml)
+}
 
 // This function checks to see if the player has won or lost the game yet
 // If yes, it gives them the option to start over or close the window
@@ -254,41 +289,4 @@ function endTurn () {
 window.EndTurn = endTurn
 window.playCard = playCard
 window.isGameOver = isGameOver
-
-// This function determines if a scientist exists, and if so returns the HTML to display all its stats
-// If not it returns the HTML for a little "no scientists" message
-const renderScientist = function (scientist, index) {
-  if (!scientist) {
-    return `<div class="col-sm-3 col-xs-6 scientistCard">
-    <p style="color: grey">[no scientist]</p>
-    </div>
-    `
-  }
-  return `
-    <div class="col-sm-3 col-xs-6 scientistCard">
-      <div class="nameAndTurns" style="display:flex; flex-direction:row;">
-        <h3 style="flex:5;">${scientist.name}</h3>
-        <h2 style="flex:1; color:red">${scientist.turnsToEnd}</h2>
-      </div>
-      <h4>Cards: + ${scientist.gainCards}</h4>
-      <h4>Potential: + ${scientist.gainPotential}</h4>
-      <button class="scientistButton" onclick="playEmpathy(${index})">${scientist.empReq} Empathy</button>
-      <button class="scientistButton" onclick="playAffection(${index})">${scientist.affReq} Affection</button>
-    </div> `
-}
-
-const renderCard = function (card, index) {
-  if (!card) {
-    return `<div class="col-sm-3 col-xs-6 playerCard">
-    <p style="color: grey">[no card]</p>
-    </div>
-    `
-  }
-  return `
-    <div class="col-sm-3 col-xs-6 playerCard">
-      <h4>${card.name}</h4>
-      <p>${card.text}</p>
-      <button onclick="playCard(${index})">Play</button>
-    </div> `
-}
 
